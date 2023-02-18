@@ -6,6 +6,7 @@ from face_lib import face_lib
 FL = face_lib()
 from urllib.request import urlopen
 
+#get image from an URL function
 def url_to_image(url, readFlag=cv2.IMREAD_COLOR):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
@@ -42,22 +43,22 @@ if __name__ == "__main__":
 
     #Source Streaming path
     #path = f"rtmp://localhost/live/stream"
-    path = "0"
+    path = 0
     
     #setup
     font = cv2.FONT_HERSHEY_DUPLEX
     #source video
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(path)
     WIDTH_INPUT_STREAMING = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     HEIGHT_INPUT_STREAMING = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     FPS_INPUT_STREAMING = int(cap.get(cv2.CAP_PROP_FPS))
 
+    #get image from an URL
     img = url_to_image('https://lh6.googleusercontent.com/X-GkxplHlP8_XvSxtWIIhwEHVuq_OTYNp7omk029HbpTKyQMSPUbgCdGgixr_AnfY_E=w2400')
-    # REFERENCE_IMAGE = cv2.imread(img)
-    REFERENCE_IMAGE = img
+    REFERENCE_IMAGE = img 
     SUM_FRAME_HANDLE = 1
-    SUM_FRAME_HAVE_TRUE_OUTPUT = 0
-    SUM_FRAME_HAVE_FACE = 1
+    SUM_FRAME_HAVE_TRUE_OUTPUT = 0 
+    SUM_FRAME_HAVE_FACE = 1 
 
     # Variables to calculate fps
     print_fps_period = 1
@@ -70,15 +71,19 @@ if __name__ == "__main__":
         ret, frame = cap.read()
         if ret == True:
             notify = 'False'
+            
+            #check if there are faces in frame and count it
             face_in_frame = FL.get_faces(frame)
             if face_in_frame:
                 SUM_FRAME_HAVE_FACE += 1
+            
             face_exist, no_faces_detected = FL.recognition_pipeline(frame,REFERENCE_IMAGE)
             if face_exist:
                 notify = 'True'
                 SUM_FRAME_HAVE_TRUE_OUTPUT += 1
             print("Recognition: {}".format(notify), end="\r")
             #cv2.putText(frame,notify,(25,25), font, 1.0, (255,255,255), 1)
+            
             #fps calculate
             SUM_FRAME_HANDLE += 1
             frame_count += 1
@@ -90,11 +95,13 @@ if __name__ == "__main__":
                 print("FPS: {:6.2f}".format(current_fps), end="\r")
                 frame_count = 0
                 t0 = time.monotonic()
+            
             # the 'q' button is set as the
             # quitting button you may use any
             # desired button of your choice
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+        
         #break th loop
         else:
             break
@@ -102,8 +109,8 @@ if __name__ == "__main__":
 recognition_rate = (SUM_FRAME_HAVE_TRUE_OUTPUT/SUM_FRAME_HAVE_FACE)*100
 print("AVERAGE FPS: ",average_fps(arr))
 print("recognition rate: {:6.2f}".format(recognition_rate),"%")
+print("Sum frame have face:", SUM_FRAME_HAVE_FACE)
 print("Sum frame handled: ", SUM_FRAME_HANDLE)
-print("Sum frave have face:", SUM_FRAME_HAVE_FACE)
 
 # After the loop release the cap object
 cap.release()
